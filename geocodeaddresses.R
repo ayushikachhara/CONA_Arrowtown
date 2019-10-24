@@ -4,10 +4,10 @@ library(googledrive)
 path <- "S:/kachharaa/CONA/Arrowtown2019/hauhau/" ##folder where the home folders will be found
 setwd(path)
 addresses <- read.csv("HouseLocations.csv", stringsAsFactors = F)
-addresses <- read.csv("S:/kachharaa/NO2 spatial modelling/modelforeachsite/observationaldata/UO_NO2.csv",
+addresses <- read.csv("~/NO2 spatial modelling/modelforeachsite/observationaldata/UO_NO2.csv",
                       stringsAsFactors = F)
 
-mykey = "AIzaSyACi3pNvPQTxZWx5u0nTtke598dPqdgySg"
+mykey = ""
 register_google(key = mykey)
 
 # ggmap(map)
@@ -53,5 +53,5 @@ addresses2 <- addresses2[,c(1,10:11)]
 addresses <- merge(addresses, addresses2, by = "site_ID", all = T)
 
 write.csv(addresses, 
-          "S:/kachharaa/NO2 spatial modelling/modelforeachsite/observationaldata/UO_NO2_geocoded_locations.csv", 
+          "~/NO2 spatial modelling/modelforeachsite/observationaldata/UO_NO2_geocoded_locations.csv", 
           row.names = F)
