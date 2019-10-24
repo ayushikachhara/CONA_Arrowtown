@@ -28,12 +28,12 @@ library(gifski)
 library(curl)
 library(googledrive)
 
-path <- "S:/kachharaa/CONA/Arrowtown2019/ODINs/Raw/"
+path <- "~/CONA/Arrowtown2019/ODINs/Raw/"
 google_dir <- drive_get("ODIN Reports 2019")
 setwd(path)
 
 
-url <- "ftp://ftp.niwa.co.nz/incoming/GustavoOlivares/odin_arrowtown/"
+url <- "ftp:"
 h = new_handle(dirlistonly=TRUE)
 con = curl(url, "r", h) ### start connection 
 tbl = read.table(con, stringsAsFactors=F, fill=TRUE)
@@ -42,7 +42,7 @@ close(con) ## end connection
 urls <- paste0(url, tbl[,1]) ## get all items on the ftp
 
 fls = basename(urls) ## separate basename from filename ###
-existing.files <- list.files(path ="S:/kachharaa/CONA/Arrowtown2019/ODINs/Raw/")### list all files in directory
+existing.files <- list.files(path ="~/CONA/Arrowtown2019/ODINs/Raw/")### list all files in directory
 
 
 ## autodownload from the web if there is a new file ###
@@ -60,9 +60,9 @@ for(i in 1:nrow(tbl)) {
    
   } else {
     untar(curl_download(url = cur.url,
-                        destfile = paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/Raw/",fls[i])))
+                      destfile = paste0("~/CONA/Arrowtown2019/ODINs/Raw/",fls[i])))
     ## create a vector of all filesnames
-    tgz.imports[counter] <- paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/Raw/",fls[i])
+    tgz.imports[counter] <- paste0("~/CONA/Arrowtown2019/ODINs/Raw/",fls[i])
     print(i)
     counter = counter +1
   }
@@ -92,7 +92,7 @@ ODINs.master <- ODINs.master %>% filter(year(date)<2020) ## removing date-errors
 
 
 ##merge all locations ####
-source("S:/kachharaa/CONA/Arrowtown2019/ODINs/LocationTimeSeries_ODINs.R")
+source("~/CONA/Arrowtown2019/ODINs/LocationTimeSeries_ODINs.R")
 
 #####
 allserialn <- unique(ODINs.master$serialn)
@@ -129,16 +129,16 @@ dailyaverages_honest <- dailyaverages %>% filter(coverage >=95)
 
 
 write.csv(ODINs.master10min, 
-          paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/allODIN10min.csv"),
+          paste0("~/CONA/Arrowtown2019/ODINs/allODIN10min.csv"),
           row.names = F)
-write.csv(dailyaverages_honest, "S:/kachharaa/CONA/Arrowtown2019/ODINs/DailyAverages_Honest.csv", row.names = F)
-write.csv(dailyaverages, "S:/kachharaa/CONA/Arrowtown2019/ODINs/DailyAverages.csv", row.names = F)
+write.csv(dailyaverages_honest, "~/CONA/Arrowtown2019/ODINs/DailyAverages_Honest.csv", row.names = F)
+write.csv(dailyaverages, "~/CONA/Arrowtown2019/ODINs/DailyAverages.csv", row.names = F)
 
 ### clear memory ####
 do.call(file.remove, list(list.files(path, full.names = TRUE)))
 
 # build daily dashboards ####
-PDFfile <- paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/SummaryDashboards",".pdf")
+PDFfile <- paste0("~/CONA/Arrowtown2019/ODINs/SummaryDashboards",".pdf")
 pdf(file=PDFfile, paper = "USr", width = 26, height = 30)
 
 ## number of odins live per day by hour of day ####
@@ -182,7 +182,7 @@ daily.cover <- ODINs.master10min %>% group_by(dateonly,hour,serialn,lat,lon) %>%
 all.dates <- sort(unique(daily.cover$dateonly),decreasing = TRUE)
 
 
-mykey = "AIzaSyACi3pNvPQTxZWx5u0nTtke598dPqdgySg"
+mykey = ""
 register_google(key = mykey)
 centre_lat <- mean(odin.loc.info$lat,na.rm = TRUE)
 centre_lon <- mean(odin.loc.info$lon,na.rm = TRUE)
@@ -275,18 +275,18 @@ drive_rm("DailyAverages.csv")
 drive_rm("DailyAverages_Honest.csv")
 drive_rm("allODIN10min.csv")
 drive_rm("DailyAverages.gif")
-drive_upload(media = "S:/kachharaa/CONA/Arrowtown2019/ODINs/SummaryDashboards.pdf",
+drive_upload(media = "~/CONA/Arrowtown2019/ODINs/SummaryDashboards.pdf",
              path = google_dir)
 
-drive_upload(media = "S:/kachharaa/CONA/Arrowtown2019/ODINs/DailyAverages.csv",
-             path = google_dir)
-
-
-drive_upload(media = "S:/kachharaa/CONA/Arrowtown2019/ODINs/DailyAverages_Honest.csv",
+drive_upload(media = "~/CONA/Arrowtown2019/ODINs/DailyAverages.csv",
              path = google_dir)
 
 
-drive_upload(media = "S:/kachharaa/CONA/Arrowtown2019/ODINs/allODIN10min.csv",
+drive_upload(media = "~/CONA/Arrowtown2019/ODINs/DailyAverages_Honest.csv",
+             path = google_dir)
+
+
+drive_upload(media = "~/CONA/Arrowtown2019/ODINs/allODIN10min.csv",
              path = google_dir)
 
 alldailydf <- rbindlist(alldaily)
@@ -301,10 +301,10 @@ p7 <- ggmap(map)  + transition_states(states = date)  +
   # geom_text(data = alldailydf,aes(lon, lat, label = serialn), nudge_y = -0.0005, size = 2) +
   theme_bw()
 
-anim_save("S:/kachharaa/CONA/Arrowtown2019/ODINs/DailyAverages.gif", p7)
+anim_save("~/CONA/Arrowtown2019/ODINs/DailyAverages.gif", p7)
 
 
-drive_upload(media = "S:/kachharaa/CONA/Arrowtown2019/ODINs/DailyAverages.gif",
+drive_upload(media = "~/CONA/Arrowtown2019/ODINs/DailyAverages.gif",
              path = google_dir)
 
 
@@ -349,12 +349,12 @@ for(i in 1:length(allweeks)) {
     theme_bw()
   
   if(perform_weeklyoperations) {
-    ggsave(paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/MondayOutputs/WeeklyMap",
+    ggsave(paste0("~/CONA/Arrowtown2019/ODINs/MondayOutputs/WeeklyMap",
                   start,"to",end, ".jpeg"),
            plot = p8, device = "jpeg")
     write.xlsx2(cur.week.data, 
-                paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/MondayOutputs/ODINweekly_",start,"to",end,".xlsx"))
-    drive_upload(media = paste0("S:/kachharaa/CONA/Arrowtown2019/ODINs/MondayOutputs/WeeklyMap",
+                paste0("~/CONA/Arrowtown2019/ODINs/MondayOutputs/ODINweekly_",start,"to",end,".xlsx"))
+    drive_upload(media = paste0("~/CONA/Arrowtown2019/ODINs/MondayOutputs/WeeklyMap",
                                 start,"to",end, ".jpeg"),
                  path = google_dir)
     }
